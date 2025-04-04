@@ -31,7 +31,7 @@ Este projeto automatiza o processo de scraping, transformação e compactação 
 
 ---
 
-## Estrutura do Projeto
+## 📁 Estrutura do Projeto
 ```
 📦 desafio-intuitive-care
 ├── 📂 data
