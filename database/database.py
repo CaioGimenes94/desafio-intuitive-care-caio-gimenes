@@ -1,9 +1,10 @@
 import mysql.connector
 from datetime import datetime
 import os
+import validators  # Biblioteca para validar URLs
 from dotenv import load_dotenv
 
-load_dotenv()  # Carrega as variáveis do .env
+load_dotenv()
 
 DB_CONFIG = {
     'host': 'localhost',
@@ -12,22 +13,38 @@ DB_CONFIG = {
     'database': 'scraping_data'
 }
 
+
 def connect_db():
-    return mysql.connector.connect(**DB_CONFIG)
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        return conn
+    except mysql.connector.Error as err:
+        print(f"Erro ao conectar ao banco de dados: {err}")
+        return None  # Retorna None se a conexão falhar
+
 
 def insert_into_db(filename, url):
     conn = connect_db()
-    cursor = conn.cursor()
+    if not conn:
+        return  # Se a conexão falhar, sai da função
 
-    query = """
-    INSERT INTO arquivos_pdf (nome_arquivo, url, data_download)
-    VALUES (%s, %s, %s)
-    """
-    values = (filename, url, datetime.now())
+    if not validators.url(url):  # Valida a URL antes de inserir
+        print(f"URL inválida: {url}")
+        return
 
-    cursor.execute(query, values)
-    conn.commit()
+    try:
+        cursor = conn.cursor()
+        query = """
+        INSERT INTO arquivos_pdf (nome_arquivo, url, data_download)
+        VALUES (%s, %s, %s)
+        """
+        values = (filename, url, datetime.now())
 
-    cursor.close()
-    conn.close()
-    print(f'{filename} salvo no banco de dados!')
+        cursor.execute(query, values)
+        conn.commit()
+        print(f'{filename} salvo no banco de dados!')
+    except mysql.connector.Error as err:
+        print(f"Erro ao inserir no banco: {err}")
+    finally:
+        cursor.close()
+        conn.close()

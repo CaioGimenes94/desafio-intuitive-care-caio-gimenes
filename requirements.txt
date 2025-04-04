@@ -26,3 +26,5 @@ typing_extensions==4.13.0
 urllib3==2.3.0
 websocket-client==1.8.0
 wsproto==1.2.0
+validators
+ftfy
